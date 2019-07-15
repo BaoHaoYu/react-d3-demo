@@ -51,6 +51,7 @@
     "@types/enzyme-adapter-react-16": "^1.0.5",
     "@types/fs-extra": "^7.0.0",
     "@types/jest": "^24.0.15",
+    "@types/jquery": "^3.3.30",
     "@types/lodash-es": "^4.17.3",
     "@types/storybook__addon-actions": "^3.4.3",
     "@types/storybook__addon-info": "^4.1.2",
@@ -106,6 +107,7 @@
     "d3-array": "^2.2.0",
     "d3-axis": "^1.0.12",
     "d3-scale": "^3.0.0",
+    "jquery": "^3.4.1",
     "lodash-es": "^4.17.14"
   }
 }
