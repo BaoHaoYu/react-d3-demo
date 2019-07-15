@@ -1,4 +1,4 @@
-import { area, curveCatmullRom, curveMonotoneX, select } from 'd3'
+import * as d3 from 'd3'
 import { max } from 'd3-array'
 import { axisBottom, axisLeft } from 'd3-axis'
 import * as d3scale from 'd3-scale'
@@ -14,8 +14,8 @@ interface IProps {
 }
 
 const listcurve = {
-  '0': curveMonotoneX,
-  '1': curveCatmullRom,
+  '0': d3.curveMonotoneX,
+  '1': d3.curveCatmullRom,
 }
 
 // https://bl.ocks.org/mbostock/431a331294d2b5ddd33f947cf4c81319
@@ -44,8 +44,8 @@ export class BaseLine extends React.Component<IProps> {
   public init = (props: IProps = this.props) => {
     $('#d3svg').empty()
     // 图表宽和高
-    const height: number = +select('#d3svg').attr('height')
-    const width: number = +select('#d3svg').attr('width')
+    const height: number = +d3.select('#d3svg').attr('height')
+    const width: number = +d3.select('#d3svg').attr('width')
     // 图表的边距
     const margin = { top: 30, right: 20, bottom: 30, left: 40 }
     // scaleLinear为线性比例，根据一个具体的数值计算，计算该数值像素，常用于y轴
@@ -70,42 +70,35 @@ export class BaseLine extends React.Component<IProps> {
       return [xScale(item), yScale(data[index])]
     })
     // 光滑请看 https://github.com/d3/d3-shape/blob/v1.3.4/README.md#curveCatmullRom_alpha
-    const newLineCreate = area()
-      .x((d) => {
-        return d[0]
-      })
-      // 曲线y0 和曲线y1形成的区域就是面积了
-      .y0((d) => {
-        return d[1]
-      })
+    const newLineCreate = d3.line()
       .curve(listcurve[props.curve])
 
     // 添加曲线
-    select('#d3svg')
+    d3.select('#d3svg')
       .datum(data)
       .append('path')
       .attr('class', 'line')
-      .attr('fill', 'steelblue')
+      .attr('fill', 'none')
       .attr('stroke', 'steelblue')
       .attr('stroke-width', 1.5)
       .attr('stroke-linejoin', 'round')
       .attr('stroke-linecap', 'round')
       .attr(
         'transform',
-        `translate(${margin.left + xScale.bandwidth() / 2!},${margin.top})`,
+        `translate(${margin.left},${margin.top})`,
       )
       .attr('d', () => {
         return newLineCreate(this.lineData)
       })
 
     // 加入y轴，使用transform属性改变位置
-    select('#d3svg')
+    d3.select('#d3svg')
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
       .call(yaxis)
-
+      
     // 加入x轴
-    select('#d3svg')
+    d3.select('#d3svg')
       .append('g')
       .attr(
         'transform',
