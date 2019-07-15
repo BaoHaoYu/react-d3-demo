@@ -28,9 +28,9 @@ export class AreaLine extends BaseLine {
       })
       .curve(curveMonotoneX)
     select('#d3svg .line')
-    .attr('fill', 'steelblue')
-    .attr('d', () => {
-      return newLineCreate(this.lineData)
-    })
+      .attr('fill', 'steelblue')
+      .attr('d', () => {
+        return newLineCreate(this.lineData)
+      })
   }
 }

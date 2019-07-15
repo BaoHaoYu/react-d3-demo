@@ -70,8 +70,7 @@ export class BaseLine extends React.Component<IProps> {
       return [xScale(item), yScale(data[index])]
     })
     // 光滑请看 https://github.com/d3/d3-shape/blob/v1.3.4/README.md#curveCatmullRom_alpha
-    const newLineCreate = d3.line()
-      .curve(listcurve[props.curve])
+    const newLineCreate = d3.line().curve(listcurve[props.curve])
 
     // 添加曲线
     d3.select('#d3svg')
@@ -83,10 +82,7 @@ export class BaseLine extends React.Component<IProps> {
       .attr('stroke-width', 1.5)
       .attr('stroke-linejoin', 'round')
       .attr('stroke-linecap', 'round')
-      .attr(
-        'transform',
-        `translate(${margin.left},${margin.top})`,
-      )
+      .attr('transform', `translate(${margin.left},${margin.top})`)
       .attr('d', () => {
         return newLineCreate(this.lineData)
       })
@@ -96,7 +92,7 @@ export class BaseLine extends React.Component<IProps> {
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
       .call(yaxis)
-      
+
     // 加入x轴
     d3.select('#d3svg')
       .append('g')

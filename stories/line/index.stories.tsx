@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react'
 import * as React from 'react'
 import { AreaLine } from './area'
 import { BaseLine } from './base'
-import { DotLine } from "./dot";
+import { DotLine } from './dot'
 
 storiesOf('line', module)
   .addDecorator(withKnobs)
