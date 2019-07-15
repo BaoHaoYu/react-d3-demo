@@ -1,10 +1,12 @@
-import { area, curveCatmullRom, curveMonotoneX, line, select } from 'd3'
+import { area, curveCatmullRom, curveMonotoneX, select } from 'd3'
 import { max } from 'd3-array'
 import { axisBottom, axisLeft } from 'd3-axis'
 import * as d3scale from 'd3-scale'
 import $ from 'jquery'
 import { isEqual } from 'lodash-es'
 import * as React from 'react'
+import { data, time } from '../data'
+
 interface IProps {
   curve: any
   paddingInner: number
@@ -17,9 +19,9 @@ const listcurve = {
 }
 
 // https://bl.ocks.org/mbostock/431a331294d2b5ddd33f947cf4c81319
-export class D3Demo extends React.Component<IProps> {
+export class BaseLine extends React.Component<IProps> {
   public static defaultProps: Partial<IProps> = {
-    curve: curveMonotoneX,
+    curve: '0',
   }
   public lineData: any
 
@@ -41,9 +43,6 @@ export class D3Demo extends React.Component<IProps> {
    */
   public init = (props: IProps = this.props) => {
     $('#d3svg').empty()
-    // 数据
-    const data: number[] = [820, 932, 400, 400, 1290, 1330, 1320]
-    const time: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
     // 图表宽和高
     const height: number = +select('#d3svg').attr('height')
     const width: number = +select('#d3svg').attr('width')
@@ -78,9 +77,6 @@ export class D3Demo extends React.Component<IProps> {
       // 曲线y0 和曲线y1形成的区域就是面积了
       .y0((d) => {
         return d[1]
-      })
-      .y1((d) => {
-        return height - margin.top - margin.bottom
       })
       .curve(listcurve[props.curve])
 

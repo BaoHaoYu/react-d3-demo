@@ -1,10 +1,11 @@
 import { number, radios, withKnobs } from '@storybook/addon-knobs'
 import { storiesOf } from '@storybook/react'
 import * as React from 'react'
-import { D3Demo } from './d3-demo'
-storiesOf('p1', module)
+import { AreaLine } from './area'
+import { BaseLine } from './base'
+storiesOf('line', module)
   .addDecorator(withKnobs)
-  .add('demo', () => {
+  .add('BaseLine', () => {
     const paddingInner = number('scaleBand() - paddingInner()', 0, {
       range: true,
       max: 10,
@@ -24,11 +25,18 @@ storiesOf('p1', module)
     )
     return (
       <div>
-        <D3Demo
+        <BaseLine
           curve={curve}
           paddingInner={paddingInner}
           paddingOuter={paddingOuter}
         />
+      </div>
+    )
+  })
+  .add('AreaLine', () => {
+    return (
+      <div>
+        <AreaLine />
       </div>
     )
   })
