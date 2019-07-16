@@ -1,6 +1,6 @@
-import { area, curveMonotoneX, select } from 'd3'
+import * as d3 from 'd3'
 import * as React from 'react'
-import { BaseLine } from './base'
+import { BaseLine } from './_base'
 export interface IAreaLineProps {
   className?: string
 
@@ -11,10 +11,10 @@ export class AreaLine extends BaseLine {
   public componentDidMount() {
     super.componentDidMount()
     // 图表宽和高
-    const height: number = +select('#d3svg').attr('height')
+    const height: number = +d3.select('#d3svg').attr('height')
     // 图表的边距
     const margin = { top: 30, right: 20, bottom: 30, left: 40 }
-    const newLineCreate = area()
+    const newLineCreate = d3.area()
       .x((d) => {
         return d[0]
       })
@@ -26,8 +26,8 @@ export class AreaLine extends BaseLine {
       .y1((d) => {
         return height - margin.top - margin.bottom
       })
-      .curve(curveMonotoneX)
-    select('#d3svg .line')
+      .curve(d3.curveMonotoneX)
+    d3.select('#d3svg .line')
       .attr('fill', 'steelblue')
       .attr('d', () => {
         return newLineCreate(this.lineData)

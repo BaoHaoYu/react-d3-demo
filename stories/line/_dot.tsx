@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import * as React from 'react'
-import { BaseLine } from './base'
+import { BaseLine } from './_base'
 export interface IAreaLineProps {
   className?: string
 

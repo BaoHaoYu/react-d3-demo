@@ -1,9 +1,9 @@
 import { number, radios, withKnobs } from '@storybook/addon-knobs'
 import { storiesOf } from '@storybook/react'
 import * as React from 'react'
-import { AreaLine } from './area'
-import { BaseLine } from './base'
-import { DotLine } from './dot'
+import { AreaLine } from './_area'
+import { BaseLine } from './_base'
+import { DotLine } from './_dot'
 
 storiesOf('line', module)
   .addDecorator(withKnobs)
