@@ -14,7 +14,8 @@ export class AreaLine extends BaseLine {
     const height: number = +d3.select('#d3svg').attr('height')
     // 图表的边距
     const margin = { top: 30, right: 20, bottom: 30, left: 40 }
-    const newLineCreate = d3.area()
+    const newLineCreate = d3
+      .area()
       .x((d) => {
         return d[0]
       })

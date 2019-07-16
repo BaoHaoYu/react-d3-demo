@@ -7,9 +7,7 @@ import { isEqual } from 'lodash-es'
 import * as React from 'react'
 import { data1 } from '../data'
 
-interface IProps {
-
-}
+interface IProps {}
 
 // https://bl.ocks.org/mbostock/431a331294d2b5ddd33f947cf4c81319
 export class BaseBar extends React.Component<IProps> {
@@ -56,13 +54,13 @@ export class BaseBar extends React.Component<IProps> {
     // scaleBand为序数比例尺，根据数组的长度，计算每个数组元素在range中的像素位置，长用于x轴
     const xScale = d3scale
       .scaleBand()
-      .domain(data1.map(item=>item.name))
+      .domain(data1.map((item) => item.name))
       .range([0, xaxisWidth])
 
     // 内容控制边距
     const content = svg
       .append('g')
-      .attr('class','content')
+      .attr('class', 'content')
       .attr('transform', `translate(${margin.left},${margin.top})`)
     // axisLeft axisBottom 会生成具体的svg标签
     const yaxis = axisLeft(yScale).ticks(5)
@@ -72,33 +70,34 @@ export class BaseBar extends React.Component<IProps> {
     this.scaleData = data1.map((item, index) => {
       return {
         name: xScale(item.name),
-        value: yScale(item.value)
+        value: yScale(item.value),
       }
     })
     const barWidth = xScale.bandwidth() / 1.5
 
-    content.append("g")
-      .attr("fill", "steelblue")
-        .selectAll("rect")
-        .data(this.scaleData)
-        .enter()
-        .append('rect')
-        .style("mix-blend-mode", "multiply")
-        .attr('value',(d:any,index)=> data1[index].value)
-        .attr("x", (d:any)=> d.name + barWidth / 4)
-        .attr("y", (d:any, index)=> d.value)
-        .attr("height", (d:any) => yaxisHeight - d.value)
-        .attr("width", barWidth);
+    content
+      .append('g')
+      .attr('fill', 'steelblue')
+      .selectAll('rect')
+      .data(this.scaleData)
+      .enter()
+      .append('rect')
+      .style('mix-blend-mode', 'multiply')
+      .attr('value', (d: any, index) => data1[index].value)
+      .attr('x', (d: any) => d.name + barWidth / 4)
+      .attr('y', (d: any, index) => d.value)
+      .attr('height', (d: any) => yaxisHeight - d.value)
+      .attr('width', barWidth)
 
     content
       .append('g')
-      .attr('class','y')
+      .attr('class', 'y')
       .call(yaxis)
 
     // 加入x轴
     content
       .append('g')
-      .attr('class','x')
+      .attr('class', 'x')
       .attr('transform', `translate(${0},${yaxisHeight})`)
       .call(xaxis)
   }
@@ -106,12 +105,7 @@ export class BaseBar extends React.Component<IProps> {
   public render() {
     return (
       <div>
-        <svg
-          className="ddd"
-          id="d3svg"
-          width={700}
-          height={400}
-        />
+        <svg className="ddd" id="d3svg" width={700} height={400} />
       </div>
     )
   }
