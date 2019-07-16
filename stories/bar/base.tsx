@@ -6,15 +6,37 @@ import $ from 'jquery'
 import { isEqual } from 'lodash-es'
 import * as React from 'react'
 import { data1 } from '../data'
+import { Tip } from './tip'
+import { number } from '@storybook/addon-knobs';
 
 interface IProps {}
 
+interface IState {
+  showTip: boolean
+
+  top?: number
+
+  left?: number
+
+  value?: number
+
+  index?: number
+}
 // https://bl.ocks.org/mbostock/431a331294d2b5ddd33f947cf4c81319
-export class BaseBar extends React.Component<IProps> {
+export class BaseBar extends React.Component<IProps, IState> {
   public static defaultProps: Partial<IProps> = {
     curve: '0',
   }
   public scaleData: any
+
+  public barWidth: number
+
+  public margin = { top: 30, right: 20, bottom: 30, left: 40 }
+
+  public state: IState = {
+    showTip: false,
+    index: -1
+  }
 
   public componentDidMount() {
     this.init()
@@ -40,7 +62,7 @@ export class BaseBar extends React.Component<IProps> {
     const height: number = +svg.attr('height')
     const width: number = +svg.attr('width')
     // 图表的边距
-    const margin = { top: 30, right: 20, bottom: 30, left: 40 }
+    const margin = this.margin
     const yaxisHeight = height - margin.top - margin.bottom
     const xaxisWidth = width - margin.right - margin.left
     // scaleLinear为线性比例，根据一个具体的数值计算，计算该数值像素，常用于y轴
@@ -73,28 +95,54 @@ export class BaseBar extends React.Component<IProps> {
         value: yScale(item.value),
       }
     })
-    const barWidth = xScale.bandwidth() / 1.5
+    this.barWidth = xScale.bandwidth() / 1.5
 
-    content
+    // 辅助柱子容器
+    const barHelp = content
+      .append('g')
+      .attr('class', 'barHelp')
+      .attr('fill', 'white')
+
+    // 柱子容器
+    const bar = content
       .append('g')
       .attr('fill', 'steelblue')
+
+    // 辅助柱子，鼠标移动到上面的时候回
+    barHelp
       .selectAll('rect')
       .data(this.scaleData)
       .enter()
       .append('rect')
       .style('mix-blend-mode', 'multiply')
       .attr('value', (d: any, index) => data1[index].value)
-      .attr('x', (d: any) => d.name + barWidth / 4)
+      .attr('x', (d: any) => d.name)
+      .attr('y', (d: any, index) => 0)
+      .attr('height', (d: any) => yaxisHeight)
+      .attr('width', xScale.bandwidth())
+      .on('mouseover', this.barMouseover)
+    
+    // 柱子
+    bar
+      .selectAll('rect')
+      .data(this.scaleData)
+      .enter()
+      .append('rect')
+      .style('mix-blend-mode', 'multiply')
+      .attr('value', (d: any, index) => data1[index].value)
+      .attr('x', (d: any) => d.name + this.barWidth / 4)
       .attr('y', (d: any, index) => d.value)
       .attr('height', (d: any) => yaxisHeight - d.value)
-      .attr('width', barWidth)
+      .attr('width', this.barWidth)
+      .on('mouseover', this.barMouseover)
 
+    // y轴
     content
       .append('g')
       .attr('class', 'y')
       .call(yaxis)
 
-    // 加入x轴
+    // x
     content
       .append('g')
       .attr('class', 'x')
@@ -102,10 +150,66 @@ export class BaseBar extends React.Component<IProps> {
       .call(xaxis)
   }
 
+  /**
+   * barMouseover
+   */
+  public barMouseover = (
+    item: { name: number; value: number },
+    index: number,
+  ) => {
+    const scaleDataItem = this.scaleData[index]
+    this.setState({
+      ...this.state,
+      showTip: true,
+      top: scaleDataItem.value,
+      left: scaleDataItem.name + this.margin.left + this.barWidth / 4,
+      value: data1[index].value,
+      index
+    })
+  }
+
+  /**
+   * renderTip
+   */
+  public renderTip = () => {
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          top: this.state.top,
+          left: this.state.left,
+        }}>
+        {this.state.value}
+      </div>
+    )
+  }
+
+  /**
+   * onMouseLeave
+   */
+  public onMouseLeave = () => {
+    this.setState({ ...this.state, showTip: false })
+  }
+  
   public render() {
     return (
-      <div>
+      <div 
+        style={{ position: 'relative' }}
+        onMouseLeave={this.onMouseLeave}
+      >
         <svg className="ddd" id="d3svg" width={700} height={400} />
+
+          <Tip
+            hidden={!this.state.showTip}
+            barWidth={this.barWidth}
+            index={this.state.index}
+            style={{
+              position: 'absolute',
+              left: this.state.left,
+              top: this.state.top,
+            }}>
+            {this.state.value}
+          </Tip>
       </div>
     )
   }

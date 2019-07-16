@@ -2,10 +2,10 @@ export const data: number[] = [820, 932, 400, 400, 1290, 1330, 1320]
 export const time: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 export const data1 = [
   { name: 'A', value: 0.02 },
-  { name: 'B', value: 0.01492 },
+  { name: 'B', value: 0.014 },
   { name: 'C', value: 0.02782 },
   { name: 'D', value: 0.04253 },
-  { name: 'E', value: 0.12702 },
+  { name: 'E', value: 0.12777 },
   { name: 'F', value: 0.02288 },
   { name: 'G', value: 0.02015 },
   { name: 'H', value: 0.06094 },
