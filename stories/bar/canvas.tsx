@@ -6,7 +6,7 @@ import { random, range } from 'lodash-es'
 import * as React from 'react'
 import { data1, data2 } from '../data'
 import { Tip } from './tip'
-
+import $ from 'jquery'
 interface IProps {}
 
 interface IState {
@@ -22,6 +22,7 @@ interface IState {
 
   index?: number
 }
+// 性能更加好 10000+ 数据不卡
 // https://bl.ocks.org/mbostock/431a331294d2b5ddd33f947cf4c81319
 export class CanvasBar extends React.Component<IProps, IState> {
   public static defaultProps: Partial<IProps> = {
@@ -50,7 +51,7 @@ export class CanvasBar extends React.Component<IProps, IState> {
    */
   public init = (props: IProps = this.props) => {
     const svg = d3.select('#d3canvas')
-    const context = (svg.node() as HTMLCanvasElement).getContext('2d')!
+    const cxt = (svg.node() as HTMLCanvasElement).getContext('2d')!
     // 图表宽和高
     const height: number = +svg.attr('height')
     const width: number = +svg.attr('width')
@@ -130,35 +131,38 @@ export class CanvasBar extends React.Component<IProps, IState> {
       .attr('y', (d: any) => d[1])
       .attr('height', (d: any) => this.yaxisHeight - d[1])
 
-    const draw = () => {
-      bar.selectAll('rect').each(function(d, index) {
-        const node = d3.select(this)
-        context.beginPath()
-        context.fillStyle = 'steelblue'
-        context.fillRect(
-          +node.attr('x'),
-          +node.attr('y'),
-          +node.attr('width'),
-          +node.attr('height'),
-        )
-        context.closePath()
-      })
-    }
-
-    d3.timer(draw)
-
     // y轴
-    content
+    const y = content
       .append('g')
       .attr('class', 'y')
       .call(yaxis)
 
     // x
-    content
+    const x = content
       .append('g')
       .attr('class', 'x')
       .attr('transform', `translate(${0},${this.yaxisHeight})`)
       .call(xaxis)
+
+    const draw = () => {
+      bar.selectAll('rect').each(function(d, index) {
+        const node = d3.select(this)
+        cxt.beginPath()
+        cxt.fillStyle = 'steelblue'
+        cxt.fillRect(
+          +node.attr('x') + margin.left,
+          +node.attr('y') + margin.top,
+          +node.attr('width'),
+          +node.attr('height'),
+        )
+        cxt.closePath()
+      })
+
+      // path
+      y.select('.domain')
+    }
+
+    d3.timer(draw)
   }
 
   /**
@@ -205,7 +209,17 @@ export class CanvasBar extends React.Component<IProps, IState> {
   public render() {
     return (
       <div style={{ position: 'relative' }} onMouseLeave={this.onMouseLeave}>
-        <canvas id="d3canvas" width={700} height={400} />
+        <div>
+          <canvas id="d3canvas" width={700} height={400} />
+
+          <svg>
+
+          </svg>
+
+          <svg>
+            
+          </svg>
+        </div>
 
         <Tip
           hidden={!this.state.showTip}

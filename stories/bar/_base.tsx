@@ -38,7 +38,7 @@ export class BaseBar extends React.Component<IProps, IState> {
   public state: IState = {
     showTip: false,
     index: -1,
-    data: range(1, 1000).map((value) => [value + '', random(1, 100)]),
+    data: range(1, 100).map((value) => [value + '', random(1, 100)]),
   }
 
   public componentDidMount() {
@@ -126,7 +126,7 @@ export class BaseBar extends React.Component<IProps, IState> {
 
       .transition()
       .duration(500)
-      .delay((d, i) => i * 20)
+      .delay((d, i) => (500 / this.scaleData.length) * i)
       .attr('y', (d: any, index) => d[1])
       .attr('height', (d: any) => this.yaxisHeight - d[1])
 

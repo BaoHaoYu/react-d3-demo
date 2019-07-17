@@ -43,6 +43,13 @@ export class UseReact extends React.Component<IProps, IState> {
   public xSelect: any
   public ySelect: any
 
+  public bar = d3.create('g')
+    .attr('class', 'barHelp')
+    .attr('fill', 'white')
+    
+  public barHelp = d3.create('g')
+    .attr('class', 'bar')
+    .attr('fill', 'white')
   public state: IState = {
     showTip: false,
     index: -1,
@@ -90,6 +97,37 @@ export class UseReact extends React.Component<IProps, IState> {
       return [this.xScale(item[0]), this.yScale(item[1])]
     })
     this.barWidth = this.xScale.bandwidth() / 1.5
+
+    // 辅助柱子，鼠标移动到上面的时候回
+    this.barHelp
+      .selectAll('rect')
+      .data(this.scaleData)
+      .enter()
+      .append('rect')
+      .style('mix-blend-mode', 'multiply')
+      .attr('x', (d: any) => d[0])
+      .attr('y', 0)
+      .attr('height', (d: any) => this.yaxisHeight)
+      .attr('width', this.xScale.bandwidth())
+      .on('mouseover', this.barMouseover)
+
+    // 柱子
+    this.bar
+      .selectAll('rect')
+      .data(this.scaleData)
+      .enter()
+      .append('rect')
+      .on('mouseover', this.barMouseover)
+      .style('mix-blend-mode', 'multiply')
+      .attr('x', (d: any) => d[0] + this.barWidth / 4)
+      .attr('width', this.barWidth)
+      .attr('y', this.yScale(0))
+      .transition()
+      .duration(500)
+      .delay((d: any, i: number) => (500 / this.scaleData.length) * i)
+      .attr('y', (d: any) => d[1])
+      .attr('height', (d: any) => this.yaxisHeight - d[1])
+      
     // y轴
     this.ySelect = d3
       .create('g')
@@ -102,6 +140,8 @@ export class UseReact extends React.Component<IProps, IState> {
       .attr('class', 'xaxis')
       .attr('transform', `translate(${0},${this.yaxisHeight})`)
       .call(xaxis)
+
+    d3.timer(()=> this.forceUpdate())
   }
 
   public componentDidUpdate(prevProps: IProps) {
@@ -160,37 +200,42 @@ export class UseReact extends React.Component<IProps, IState> {
    * react 控制 主体渲染，d3 负责提供数据，和渲染坐标轴
    */
   public renderContent = () => {
+    const _this = this
+    const bar: any[] = []
+    const barHelp: any[] = [] 
+    this.bar.selectAll('rect').each(function(d,index){
+      const item = _this.scaleData[index]
+      const node = d3.select(this)
+      bar.push(
+        <rect
+          {..._this.getAttributes(node.node() as HTMLElement)}
+          key={index}
+          onMouseEnter={_this.onMouseEnter(item, index)}
+          style={{ mixBlendMode: 'multiply' }}
+        />
+      )
+      return
+    })
+    this.barHelp.selectAll('rect').each(function(d,index){
+      const item = _this.scaleData[index]
+      const node = d3.select(this)
+      barHelp.push(
+        <rect
+          {..._this.getAttributes(node.node() as HTMLElement)}
+          key={index}
+          onMouseEnter={_this.onMouseEnter(item, index)}
+          style={{ mixBlendMode: 'multiply' }}
+        />
+      )
+      return
+    })
     return (
       <>
         <g className={'barHelp'} fill={'white'}>
-          {this.scaleData.map((item: [number, number], index: number) => (
-            <rect
-              style={{ mixBlendMode: 'multiply' }}
-              key={index}
-              data-value={this.props.data[index][1]}
-              x={item[0]}
-              y={0}
-              height={this.yaxisHeight}
-              width={this.xScale.bandwidth()}
-              onMouseEnter={this.onMouseEnter(item, index)}
-            />
-          ))}
+          {barHelp}
         </g>
         <g className={'barContent'} fill={'steelblue'}>
-          {this.scaleData.map((item: [number, number], index: number) => {
-            return (
-              <rect
-                style={{ mixBlendMode: 'multiply', transition: 'all 0.5s' }}
-                key={index}
-                data-value={this.props.data[index][1]}
-                x={item[0] + this.barWidth / 4}
-                y={item[1]}
-                height={this.yaxisHeight - item[1]}
-                width={this.barWidth}
-                onMouseEnter={this.onMouseEnter(item, index)}
-              />
-            )
-          })}
+          {bar}
         </g>
       </>
     )

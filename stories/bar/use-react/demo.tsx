@@ -1,8 +1,7 @@
-import { random } from 'lodash-es'
+import { random, range } from 'lodash-es'
 import * as React from 'react'
 import { data1 } from '../../data'
 import { UseReact } from './index'
-
 export interface IDemoProps {
   className?: string
 
@@ -14,7 +13,7 @@ export class Demo extends React.Component<IDemoProps> {
     data: Array<[number | string, number]>
     flag: number
   } = {
-    data: data1.map((item) => [item.name, random(1, 10)]),
+    data: range(1, 100).map((value) => [value + '', random(1, 100)]),
     flag: 0,
   }
 
