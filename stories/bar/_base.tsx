@@ -107,7 +107,7 @@ export class BaseBar extends React.Component<IProps, IState> {
       .enter()
       .append('rect')
       .style('mix-blend-mode', 'multiply')
-      .attr('value', (d: any, index) => data1[index].value)
+      .attr('data-value', (d: any, index) => data1[index].value)
       .attr('x', (d: any) => d[0])
       .attr('y', 0)
       .attr('height', (d: any) => yaxisHeight)
@@ -120,13 +120,18 @@ export class BaseBar extends React.Component<IProps, IState> {
       .data(this.scaleData)
       .enter()
       .append('rect')
-      .style('mix-blend-mode', 'multiply')
-      .attr('value', (d: any, index) => data1[index].value)
-      .attr('x', (d: any) => d[0] + this.barWidth / 4)
-      .attr('y', (d: any, index) => d[1])
-      .attr('height', (d: any) => yaxisHeight - d[1])
-      .attr('width', this.barWidth)
       .on('mouseover', this.barMouseover)
+      .style('mix-blend-mode', 'multiply')
+      .attr('data-value', (d: any, index) => data1[index].value)
+      .attr('x', (d: any) => d[0] + this.barWidth / 4)
+      .attr('width', this.barWidth)
+      .attr('y', yScale(0))
+
+      .transition()
+      .duration(500)
+      .attr('y', (d: any, index) => d[1])
+      .delay((d, i) => i * 20)
+      .attr('height', (d: any) => yaxisHeight - d[1])
 
     // y轴
     content
