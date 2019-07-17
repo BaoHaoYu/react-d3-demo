@@ -23,7 +23,7 @@ interface IState {
   index?: number
 }
 // https://bl.ocks.org/mbostock/431a331294d2b5ddd33f947cf4c81319
-export class BaseBar extends React.Component<IProps, IState> {
+export class CanvasBar extends React.Component<IProps, IState> {
   public static defaultProps: Partial<IProps> = {
     curve: '0',
   }
@@ -38,7 +38,7 @@ export class BaseBar extends React.Component<IProps, IState> {
   public state: IState = {
     showTip: false,
     index: -1,
-    data: range(1, 1000).map((value) => [value + '', random(1, 100)]),
+    data: range(1, 100).map((value) => [value + '', random(1, 100)]),
   }
 
   public componentDidMount() {
@@ -49,8 +49,8 @@ export class BaseBar extends React.Component<IProps, IState> {
    * 促使华
    */
   public init = (props: IProps = this.props) => {
-    const svg = d3.select('#d3svg')
-
+    const svg = d3.select('#d3canvas')
+    const context = (svg.node() as HTMLCanvasElement).getContext('2d')!
     // 图表宽和高
     const height: number = +svg.attr('height')
     const width: number = +svg.attr('width')
@@ -72,11 +72,6 @@ export class BaseBar extends React.Component<IProps, IState> {
       .domain(this.state.data.map((item) => item[0]))
       .range([0, this.xaxisWidth])
 
-    // 内容控制边距
-    const content = svg
-      .append('g')
-      .attr('class', 'content')
-      .attr('transform', `translate(${margin.left},${margin.top})`)
     // axisLeft axisBottom 会生成具体的svg标签
     const yaxis = axisLeft(this.yScale).ticks(5)
     const xaxis = axisBottom(this.xScale)
@@ -86,6 +81,12 @@ export class BaseBar extends React.Component<IProps, IState> {
       return [this.xScale(item[0]), this.yScale(item[1])]
     })
     this.barWidth = this.xScale.bandwidth() / 1.5
+
+    // 内容控制边距
+    const content = d3
+      .create('g')
+      .attr('class', 'content')
+      .attr('transform', `translate(${margin.left},${margin.top})`)
 
     // 辅助柱子容器
     const barHelp = content
@@ -123,12 +124,28 @@ export class BaseBar extends React.Component<IProps, IState> {
       .attr('x', (d: any) => d[0] + this.barWidth / 4)
       .attr('width', this.barWidth)
       .attr('y', this.yScale(0))
-
       .transition()
       .duration(500)
-      .delay((d, i) => i * 20)
-      .attr('y', (d: any, index) => d[1])
+      .delay((d, i) => (500 / this.scaleData.length) * i)
+      .attr('y', (d: any) => d[1])
       .attr('height', (d: any) => this.yaxisHeight - d[1])
+
+    const draw = () => {
+      bar.selectAll('rect').each(function(d, index) {
+        const node = d3.select(this)
+        context.beginPath()
+        context.fillStyle = 'steelblue'
+        context.fillRect(
+          +node.attr('x'),
+          +node.attr('y'),
+          +node.attr('width'),
+          +node.attr('height'),
+        )
+        context.closePath()
+      })
+    }
+
+    d3.timer(draw)
 
     // y轴
     content
@@ -188,7 +205,7 @@ export class BaseBar extends React.Component<IProps, IState> {
   public render() {
     return (
       <div style={{ position: 'relative' }} onMouseLeave={this.onMouseLeave}>
-        <svg className="ddd" id="d3svg" width={700} height={400} />
+        <canvas id="d3canvas" width={700} height={400} />
 
         <Tip
           hidden={!this.state.showTip}
