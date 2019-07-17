@@ -7,12 +7,14 @@ import { isEqual } from 'lodash-es'
 import * as React from 'react'
 import { data1 } from '../data'
 import { Tip } from './tip'
-import { number } from '@storybook/addon-knobs';
+import { random } from 'lodash-es'
 
 interface IProps {}
 
 interface IState {
   showTip: boolean
+
+  data: [string, number][]
 
   top?: number
 
@@ -27,7 +29,7 @@ export class BaseBar extends React.Component<IProps, IState> {
   public static defaultProps: Partial<IProps> = {
     curve: '0',
   }
-  public scaleData: any
+  public scaleData: any = []
 
   public barWidth: number
 
@@ -35,20 +37,12 @@ export class BaseBar extends React.Component<IProps, IState> {
 
   public state: IState = {
     showTip: false,
-    index: -1
+    index: -1,
+    data: data1.map(item=> [item.name, random(1, 100)])
   }
 
   public componentDidMount() {
     this.init()
-  }
-
-  /**
-   * com
-   */
-  public componentWillReceiveProps(next: IProps) {
-    if (!isEqual(this.props, next)) {
-      this.init(next)
-    }
   }
 
   /**
@@ -69,14 +63,14 @@ export class BaseBar extends React.Component<IProps, IState> {
     // rangeRound对数据进行保留一位小数，这样防止了ticks模糊
     const yScale = d3scale
       .scaleLinear()
-      .domain([0, max(data1, (item) => item.value)!])
+      .domain([0, max(this.state.data, (item) => item[1])!])
       .nice()
       .rangeRound([yaxisHeight, 0])
 
     // scaleBand为序数比例尺，根据数组的长度，计算每个数组元素在range中的像素位置，长用于x轴
     const xScale = d3scale
       .scaleBand()
-      .domain(data1.map((item) => item.name))
+      .domain(this.state.data.map((item) => item[0]))
       .range([0, xaxisWidth])
 
     // 内容控制边距
@@ -89,11 +83,8 @@ export class BaseBar extends React.Component<IProps, IState> {
     const xaxis = axisBottom(xScale)
 
     // 曲线数据，记得要用比例尺转化为像素数据
-    this.scaleData = data1.map((item, index) => {
-      return {
-        name: xScale(item.name),
-        value: yScale(item.value),
-      }
+    this.scaleData = this.state.data.map((item, index) => {
+      return [xScale(item[0]), yScale(item[1])]
     })
     this.barWidth = xScale.bandwidth() / 1.5
 
@@ -106,6 +97,7 @@ export class BaseBar extends React.Component<IProps, IState> {
     // 柱子容器
     const bar = content
       .append('g')
+      .attr('class', 'barContent')
       .attr('fill', 'steelblue')
 
     // 辅助柱子，鼠标移动到上面的时候回
@@ -116,12 +108,12 @@ export class BaseBar extends React.Component<IProps, IState> {
       .append('rect')
       .style('mix-blend-mode', 'multiply')
       .attr('value', (d: any, index) => data1[index].value)
-      .attr('x', (d: any) => d.name)
-      .attr('y', (d: any, index) => 0)
+      .attr('x', (d: any) => d[0])
+      .attr('y', 0)
       .attr('height', (d: any) => yaxisHeight)
       .attr('width', xScale.bandwidth())
       .on('mouseover', this.barMouseover)
-    
+
     // 柱子
     bar
       .selectAll('rect')
@@ -130,9 +122,9 @@ export class BaseBar extends React.Component<IProps, IState> {
       .append('rect')
       .style('mix-blend-mode', 'multiply')
       .attr('value', (d: any, index) => data1[index].value)
-      .attr('x', (d: any) => d.name + this.barWidth / 4)
-      .attr('y', (d: any, index) => d.value)
-      .attr('height', (d: any) => yaxisHeight - d.value)
+      .attr('x', (d: any) => d[0] + this.barWidth / 4)
+      .attr('y', (d: any, index) => d[1])
+      .attr('height', (d: any) => yaxisHeight - d[1])
       .attr('width', this.barWidth)
       .on('mouseover', this.barMouseover)
 
@@ -161,10 +153,10 @@ export class BaseBar extends React.Component<IProps, IState> {
     this.setState({
       ...this.state,
       showTip: true,
-      top: scaleDataItem.value,
-      left: scaleDataItem.name + this.margin.left + this.barWidth / 4,
+      top: scaleDataItem[1],
+      left: scaleDataItem[0] + this.margin.left + this.barWidth / 4,
       value: data1[index].value,
-      index
+      index,
     })
   }
 
@@ -190,26 +182,23 @@ export class BaseBar extends React.Component<IProps, IState> {
   public onMouseLeave = () => {
     this.setState({ ...this.state, showTip: false })
   }
-  
+
   public render() {
     return (
-      <div 
-        style={{ position: 'relative' }}
-        onMouseLeave={this.onMouseLeave}
-      >
+      <div style={{ position: 'relative' }} onMouseLeave={this.onMouseLeave}>
         <svg className="ddd" id="d3svg" width={700} height={400} />
 
-          <Tip
-            hidden={!this.state.showTip}
-            barWidth={this.barWidth}
-            index={this.state.index}
-            style={{
-              position: 'absolute',
-              left: this.state.left,
-              top: this.state.top,
-            }}>
-            {this.state.value}
-          </Tip>
+        <Tip
+          hidden={!this.state.showTip}
+          barWidth={this.barWidth}
+          index={this.state.index}
+          style={{
+            position: 'absolute',
+            left: this.state.left,
+            top: this.state.top,
+          }}>
+          {this.state.value}
+        </Tip>
       </div>
     )
   }

@@ -16,20 +16,17 @@ export interface ITipProps {
 }
 
 export class Tip extends React.Component<ITipProps> {
-
-  static defaultProps:Partial<ITipProps> = {
-    barWidth: 0
+  public static defaultProps: Partial<ITipProps> = {
+    barWidth: 0,
   }
 
   public state = {
     ml: 0,
   }
 
-  componentDidUpdate(prevProps: ITipProps){
-    if(prevProps.index !== this.props.index){
+  public componentDidUpdate(prevProps: ITipProps) {
+    if (prevProps.index !== this.props.index) {
       const d = $(dom.findDOMNode(this) as Element)
-      console.log(d.outerWidth(), this.props.barWidth , d.width()! / 2 - this.props.barWidth! / 2);
-      
       this.setState({ ml: d.outerWidth()! / 2 - this.props.barWidth! / 2 })
     }
   }
